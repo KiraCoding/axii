@@ -53,11 +53,11 @@ unsafe extern "system" fn DllMain(module: HMODULE, reason: u32, _: *mut c_void) 
 
 unsafe extern "system" fn init(_: *mut c_void) -> u32 {
     init_console();
-    println!("{} - {}", "The Witcher 3 - WHSEx", VERSION);
+    println!("The Witcher 3 - Axii {} - Plugin loader", VERSION);
 
     // Load the true system `dinput8.dll`
     MODULE_SYSTEM = Some(LoadLibraryA(s!("C:\\Windows\\System32\\dinput8.dll")).unwrap());
-    println!("[INIT] Loaded system dll [{:?}]", MODULE_SYSTEM.unwrap());
+    println!("[INIT] Loaded dinput8.dll [{:?}]", MODULE_SYSTEM.unwrap());
 
     // Load the true `DirectInput8Create`
     PROXY_FUNCTION = Some(transmute(GetProcAddress(
