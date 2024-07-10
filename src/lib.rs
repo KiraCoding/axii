@@ -22,7 +22,6 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 static mut MODULE_PROXY: Option<HMODULE> = None;
 static mut MODULE_SYSTEM: Option<HMODULE> = None;
-
 static mut PROXY_FUNCTION: Option<fn()> = None;
 
 #[no_mangle]
@@ -53,20 +52,20 @@ unsafe extern "system" fn DllMain(module: HMODULE, reason: u32, _: *mut c_void) 
 
 unsafe extern "system" fn init(_: *mut c_void) -> u32 {
     init_console();
-    println!("The Witcher 3 - Axii {} - Plugin loader", VERSION);
+    init_proxy();
 
-    // Load the true system `dinput8.dll`
+    true as u32
+}
+
+unsafe fn init_proxy() {
     MODULE_SYSTEM = Some(LoadLibraryA(s!("C:\\Windows\\System32\\dinput8.dll")).unwrap());
     println!("[INIT] Loaded dinput8.dll [{:?}]", MODULE_SYSTEM.unwrap());
 
-    // Load the true `DirectInput8Create`
     PROXY_FUNCTION = Some(transmute(GetProcAddress(
         MODULE_SYSTEM.unwrap(),
         s!("DirectInput8Create"),
     )));
     println!("[INIT] DirectInput8Create");
-
-    true as u32
 }
 
 unsafe fn init_console() {
@@ -86,6 +85,8 @@ unsafe fn init_console() {
     let mut stderr_mode = CONSOLE_MODE(0);
     GetConsoleMode(stderr, &mut stderr_mode).unwrap();
     SetConsoleMode(stderr, stderr_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING).unwrap();
+
+    println!("The Witcher 3 - Axii {} - Plugin loader", VERSION);
 }
 
 #[no_mangle]
