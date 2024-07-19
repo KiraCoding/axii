@@ -5,6 +5,7 @@ use std::env::current_dir;
 use std::io::{stderr, stdout};
 use std::os::windows::io::AsRawHandle;
 use tracing::info;
+use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::fmt::format::FmtSpan;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
@@ -49,7 +50,12 @@ unsafe fn init_console() {
 unsafe fn init_tracing() {
     let path = current_dir().unwrap().join("../whse/logs");
 
-    let file_appender = tracing_appender::rolling::hourly(path, "loader.log");
+    let file_appender = RollingFileAppender::builder()
+        .rotation(Rotation::HOURLY)
+        .filename_prefix("axii")
+        .filename_suffix("log")
+        .build(path)
+        .unwrap();
 
     let file_layer = tracing_subscriber::fmt::layer()
         .with_writer(file_appender)
@@ -58,7 +64,7 @@ unsafe fn init_tracing() {
         .with_span_events(FmtSpan::FULL);
 
     let stdout_layer = tracing_subscriber::fmt::layer()
-        .with_writer(std::io::stdout)
+        .with_writer(stdout)
         .with_ansi(true)
         .with_level(true)
         .with_span_events(FmtSpan::FULL);
