@@ -14,4 +14,8 @@ tracing-subscriber = "0.3.18"
 
 [dependencies.windows]
 version = "0.57.0"
-features = ["Win32_System_Console"]
+features = [
+  "Win32_System_Console",
+  "Win32_System_LibraryLoader",
+  "Win32_System_Diagnostics_Debug",
+]

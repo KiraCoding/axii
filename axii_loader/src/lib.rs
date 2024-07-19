@@ -2,28 +2,70 @@
 compile_error!("This crate can only be compiled for the x86_64-pc-windows-msvc target");
 
 use std::env::current_dir;
+use std::fs::read_dir;
 use std::io::{stderr, stdout};
+use std::os::windows::ffi::OsStrExt;
 use std::os::windows::io::AsRawHandle;
-use tracing::info;
+use std::path::PathBuf;
+use tracing::error;
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::fmt::format::FmtSpan;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
-use windows::core::w;
+use windows::core::{w, PCWSTR};
 use windows::Win32::Foundation::HANDLE;
 use windows::Win32::System::Console::{
     AllocConsole, GetConsoleMode, SetConsoleMode, SetConsoleTitleW, SetStdHandle, CONSOLE_MODE,
     ENABLE_VIRTUAL_TERMINAL_PROCESSING, STD_ERROR_HANDLE, STD_OUTPUT_HANDLE,
 };
+use windows::Win32::System::Diagnostics::Debug::{SetErrorMode, SEM_FAILCRITICALERRORS};
+use windows::Win32::System::LibraryLoader::LoadLibraryW;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[no_mangle]
 unsafe extern "system" fn loader() {
+    SetErrorMode(SEM_FAILCRITICALERRORS);
+
     init_console();
     init_tracing();
 
-    info!("Tracing initialized");
+    let paths = read_plugins_dir();
+
+    paths.iter().for_each(|path| {
+        let w_path: Vec<u16> = path.as_os_str().encode_wide().chain(Some(0)).collect();
+
+        match LoadLibraryW(PCWSTR(w_path.as_ptr())) {
+            Ok(_module) => init_plugin(),
+            Err(_) => error!("Failed to load {:#}", path.display()),
+        };
+    });
+}
+
+fn init_plugin() {}
+
+fn read_plugins_dir() -> Vec<PathBuf> {
+    let path = current_dir()
+        .unwrap()
+        .join("..\\whse\\plugins")
+        .canonicalize()
+        .unwrap();
+
+    read_dir(path)
+        .unwrap()
+        .filter_map(|entry| {
+            let entry = entry.ok()?;
+            let path = entry.path();
+            if path
+                .extension()
+                .map_or(false, |ext| ext.eq_ignore_ascii_case("dll"))
+            {
+                Some(path)
+            } else {
+                None
+            }
+        })
+        .collect()
 }
 
 unsafe fn init_console() {
