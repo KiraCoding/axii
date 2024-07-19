@@ -1,25 +1,36 @@
-use windows::core::w;
-use windows::Win32::System::Console::{
-    AllocConsole, GetConsoleMode, GetStdHandle, SetConsoleMode, SetConsoleTitleW, SetStdHandle,
-    CONSOLE_MODE, ENABLE_VIRTUAL_TERMINAL_PROCESSING, STD_ERROR_HANDLE, STD_OUTPUT_HANDLE,
-};
-
 #[cfg(not(all(target_arch = "x86_64", target_os = "windows", target_env = "msvc")))]
 compile_error!("This crate can only be compiled for the x86_64-pc-windows-msvc target");
+
+use std::env::current_dir;
+use std::io::{stderr, stdout};
+use std::os::windows::io::AsRawHandle;
+use tracing::info;
+use tracing_subscriber::fmt::format::FmtSpan;
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::util::SubscriberInitExt;
+use windows::core::w;
+use windows::Win32::Foundation::HANDLE;
+use windows::Win32::System::Console::{
+    AllocConsole, GetConsoleMode, SetConsoleMode, SetConsoleTitleW, SetStdHandle, CONSOLE_MODE,
+    ENABLE_VIRTUAL_TERMINAL_PROCESSING, STD_ERROR_HANDLE, STD_OUTPUT_HANDLE,
+};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[no_mangle]
 unsafe extern "system" fn loader() {
-    init_console()
+    init_console();
+    init_tracing();
+
+    info!("Tracing initialized");
 }
 
 unsafe fn init_console() {
     AllocConsole().unwrap_unchecked();
     SetConsoleTitleW(w!("The Witcher 3: Console")).unwrap_unchecked();
 
-    let stdout = GetStdHandle(STD_OUTPUT_HANDLE).unwrap();
-    let stderr = GetStdHandle(STD_ERROR_HANDLE).unwrap();
+    let stdout = HANDLE(stdout().as_raw_handle() as isize);
+    let stderr = HANDLE(stderr().as_raw_handle() as isize);
 
     SetStdHandle(STD_OUTPUT_HANDLE, stdout).unwrap();
     SetStdHandle(STD_ERROR_HANDLE, stderr).unwrap();
@@ -33,4 +44,27 @@ unsafe fn init_console() {
     SetConsoleMode(stderr, stderr_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING).unwrap();
 
     println!("The Witcher 3 - Axii {} - Plugin loader", VERSION);
+}
+
+unsafe fn init_tracing() {
+    let path = current_dir().unwrap().join("../whse/logs");
+
+    let file_appender = tracing_appender::rolling::hourly(path, "loader.log");
+
+    let file_layer = tracing_subscriber::fmt::layer()
+        .with_writer(file_appender)
+        .with_ansi(false)
+        .with_level(true)
+        .with_span_events(FmtSpan::FULL);
+
+    let stdout_layer = tracing_subscriber::fmt::layer()
+        .with_writer(std::io::stdout)
+        .with_ansi(true)
+        .with_level(true)
+        .with_span_events(FmtSpan::FULL);
+
+    tracing_subscriber::registry()
+        .with(file_layer)
+        .with(stdout_layer)
+        .init();
 }
