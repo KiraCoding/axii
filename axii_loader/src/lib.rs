@@ -12,14 +12,14 @@ use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::fmt::format::FmtSpan;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
-use windows::core::{w, PCWSTR};
-use windows::Win32::Foundation::HANDLE;
+use windows::core::{s, w, PCWSTR};
+use windows::Win32::Foundation::{HANDLE, HMODULE};
 use windows::Win32::System::Console::{
     AllocConsole, GetConsoleMode, SetConsoleMode, SetConsoleTitleW, SetStdHandle, CONSOLE_MODE,
     ENABLE_VIRTUAL_TERMINAL_PROCESSING, STD_ERROR_HANDLE, STD_OUTPUT_HANDLE,
 };
 use windows::Win32::System::Diagnostics::Debug::{SetErrorMode, SEM_FAILCRITICALERRORS};
-use windows::Win32::System::LibraryLoader::LoadLibraryW;
+use windows::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryW};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -36,13 +36,15 @@ unsafe extern "system" fn loader() {
         let w_path: Vec<u16> = path.as_os_str().encode_wide().chain(Some(0)).collect();
 
         match LoadLibraryW(PCWSTR(w_path.as_ptr())) {
-            Ok(_module) => init_plugin(),
+            Ok(module) => init_plugin(module),
             Err(_) => error!("Failed to load {:#}", path.display()),
         };
     });
 }
 
-fn init_plugin() {}
+fn init_plugin(module: HMODULE) {
+    unsafe { GetProcAddress(module, s!("plugin")).unwrap()() };
+}
 
 fn read_plugins_dir() -> Vec<PathBuf> {
     let path = current_dir()
