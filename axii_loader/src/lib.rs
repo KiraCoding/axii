@@ -37,7 +37,7 @@ unsafe extern "system" fn loader() {
 
         match LoadLibraryW(PCWSTR(w_path.as_ptr())) {
             Ok(module) => init_plugin(module),
-            Err(_) => error!("Failed to load {:#}", path.display()),
+            Err(err) => error!("{}", err),
         };
     });
 }
