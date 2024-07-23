@@ -7,7 +7,7 @@ use std::io::{stderr, stdout};
 use std::os::windows::ffi::OsStrExt;
 use std::os::windows::io::AsRawHandle;
 use std::path::PathBuf;
-use tracing::error;
+use tracing::{error, info};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::fmt::format::FmtSpan;
 use tracing_subscriber::layer::SubscriberExt;
@@ -31,6 +31,11 @@ unsafe extern "system" fn loader() {
     init_tracing();
 
     let paths = read_plugins_dir();
+
+    if paths.is_empty() {
+        info!("No plugins found");
+        return;
+    }
 
     paths.iter().for_each(|path| {
         let w_path: Vec<u16> = path.as_os_str().encode_wide().chain(Some(0)).collect();
