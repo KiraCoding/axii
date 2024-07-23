@@ -8,7 +8,7 @@
 > Plugin entry point:
 > ```rust
 > #[no_mangle]
-> unsafe extern "C" fn plugin() {}
+> unsafe extern "system" fn plugin() {}
 > ```
 
 Rust Witcher 3 DLL injection example using `dinput8` proxying `DirectInput8Create`.
