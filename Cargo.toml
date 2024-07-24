@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["axii_loader", "axii_proxy"]
+members = ["axii_loader", "axii_proxy", "roach"]
 
 [profile.release]
 codegen-units = 1
