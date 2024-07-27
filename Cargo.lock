@@ -63,6 +63,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
+name = "libc"
+version = "0.2.155"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "97b3888a4aecf77e811145cadf6eef5901f4782c53886191b2f693f24761847c"
+
+[[package]]
 name = "log"
 version = "0.4.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -130,6 +136,7 @@ dependencies = [
 name = "roach"
 version = "0.1.0"
 dependencies = [
+ "transcend",
  "windows 0.58.0",
 ]
 
@@ -313,6 +320,15 @@ dependencies = [
  "thread_local",
  "tracing-core",
  "tracing-log",
+]
+
+[[package]]
+name = "transcend"
+version = "0.1.0"
+source = "git+https://github.com/KiraCoding/transcend.git#c2c8dd714fa792bb99d92e8731857e1633558438"
+dependencies = [
+ "libc",
+ "windows 0.58.0",
 ]
 
 [[package]]
