@@ -1,0 +1,13 @@
+[package]
+name = "axii_runner"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+regex = "1.10.5"
+windows-registry = "0.2.0"
+vdf-reader = "0.2.0"
+serde = { version = "1.0.204", features = ["derive"] }
+clap = { version = "4.5.11", features = ["derive"] }
+axii_loader = { version = "0.1.0", path = "../axii_loader", artifact = "cdylib" }
+axii_proxy = { path = "../axii_proxy", artifact = "cdylib" }
