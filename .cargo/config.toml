@@ -3,3 +3,4 @@ target = "x86_64-pc-windows-msvc"
 
 [unstable]
 bindeps = true
+build-std = ["core", "alloc", "std"]

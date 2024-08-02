@@ -51,6 +51,7 @@ fn init_plugin(module: HMODULE) {
     unsafe { GetProcAddress(module, s!("plugin")).unwrap()() };
 }
 
+#[inline(always)]
 fn read_plugins_dir() -> Vec<PathBuf> {
     let path = current_dir()
         .unwrap()
@@ -75,6 +76,7 @@ fn read_plugins_dir() -> Vec<PathBuf> {
         .collect()
 }
 
+#[inline(always)]
 unsafe fn init_console() {
     AllocConsole().unwrap_unchecked();
     SetConsoleTitleW(w!("The Witcher 3: Console")).unwrap_unchecked();
@@ -96,6 +98,7 @@ unsafe fn init_console() {
     println!("The Witcher 3 - Axii {} - Plugin loader", VERSION);
 }
 
+#[inline(always)]
 unsafe fn init_tracing() {
     let path = current_dir().unwrap().join("../whse/logs");
 

@@ -1,3 +1,5 @@
+#![no_std]
+
 #[cfg(not(all(target_arch = "x86_64", target_os = "windows", target_env = "msvc")))]
 compile_error!("This crate can only be compiled for the x86_64-pc-windows-msvc target");
 
@@ -46,8 +48,6 @@ unsafe extern "system" fn init(_: *mut c_void) -> u32 {
     true as u32
 }
 
-// Replace this with a #[naked] jump call once the feature is stable
-// <https://rust-lang.github.io/rfcs/2972-constrained-naked.html>
 #[no_mangle]
 #[allow(non_snake_case)]
 pub unsafe extern "system" fn DirectInput8Create(
