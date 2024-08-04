@@ -47,6 +47,7 @@ unsafe extern "system" fn loader() {
     });
 }
 
+#[inline(always)]
 fn init_plugin(module: HMODULE) {
     unsafe { GetProcAddress(module, s!("plugin")).unwrap()() };
 }
