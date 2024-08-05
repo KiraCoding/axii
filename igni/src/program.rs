@@ -1,10 +1,10 @@
-use crate::ptr::FnPtr;
 use crate::section::Section;
 use core::ffi::CStr;
 use core::mem::{transmute_copy, zeroed};
 use core::slice::from_raw_parts;
 use rayon::iter::IndexedParallelIterator;
 use rayon::slice::ParallelSlice;
+use windows::Win32::System::Memory::VirtualAlloc;
 use std::sync::LazyLock;
 use windows::core::PCWSTR;
 use windows::Win32::Foundation::HMODULE;
@@ -28,18 +28,25 @@ pub struct Program {
 }
 
 impl Program {
+    #[inline]
+    #[must_use]
     pub fn new() -> &'static Self {
         &PROGRAM
     }
 
+    /// Returns a raw pointer to the programs base.
+    #[inline]
     pub fn base(&self) -> *const usize {
         self.base
     }
 
+    /// Returns the length of the program in memory.
+    #[inline]
     pub fn len(&self) -> usize {
         self.len
     }
 
+    #[inline]
     pub fn sections(&self) -> &[Section] {
         &self.sections
     }
@@ -48,6 +55,7 @@ impl Program {
         unsafe { transmute_copy(&self.base.add(offset)) }
     }
 
+    /// Returns a slice containing the entire program.
     pub fn as_slice(&self) -> &[u8] {
         unsafe { from_raw_parts(self.base.cast(), self.len) }
     }
@@ -63,8 +71,6 @@ impl Program {
             })
             .map(|offset| unsafe { self.base.add(offset).cast() })
     }
-
-    pub fn hook(&self, target: *const usize, function: u8) {}
 
     fn init() -> Self {
         let base = unsafe { GetModuleHandleW(PCWSTR::null()).unwrap_unchecked().0 as *const usize };

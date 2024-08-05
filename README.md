@@ -12,3 +12,9 @@
 > ```
 
 Rust Witcher 3 DLL injection example using `dinput8` proxying `DirectInput8Create`.
+
+## License
+> [!NOTE]\
+> This project is independent and not affiliated with `CD Project RED` in any way.
+
+Todo

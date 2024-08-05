@@ -1,39 +1,21 @@
-use core::ffi::c_void;
-use windows::Win32::System::Memory::{VirtualProtect, PAGE_EXECUTE_READWRITE};
-
-pub trait FnPtr {
-    // &self is the address to hook into and function is our hook that gets called/attached
-    fn hook<F>(&self, function: F)
-    where
-        F: Fn() + 'static;
+pub struct Hook<F> {
+    func: F,
+    enabled: bool,
 }
 
-macro_rules! impl_fnptr {
-    ($(($($args:ident),*)),*) => {
-        $(
-            // impl<R, $($args),*> FnPtr for unsafe extern "C" fn($($args),*) -> R {}
-            // impl<R, $($args),*> FnPtr for unsafe extern "cdecl" fn($($args),*) -> R {}
-            // impl<R, $($args),*> FnPtr for unsafe extern "win64" fn($($args),*) -> R {}
+// impl Hookable for any extern fn
+pub trait Hookable {}
 
-            impl<R, $($args),*> FnPtr for unsafe extern "fastcall" fn($($args),*) -> R {
-                fn hook<F>(&self, Function: F) 
-                where 
-                    F: Fn($($args),*) -> R + 'static, {
+fn main() {
+    extern "C" fn add(x: u8, y: u8) -> u8 {
+        x + y
+    }
 
-                }
-            }
+    extern "C" fn add3(x: u8, y: u8, z: u8) -> u8 {
+        x + y + z
+    }
 
-
-            // impl<R, $($args),*> FnPtr for unsafe extern "thiscall" fn($($args),*) -> R {}
-
-        )*
-    };
-}
-
-impl_fnptr! {
-    (),
-    (A1),
-    (A1, A2),
-    (A1, A2, A3),
-    (A1, A2, A3, A4)
+    // hook takes closure of `fn` sig except ret
+    let handle = add.hook(|x, y| x - y);
+    let handle1 = add3.hook(|x, y, z| x - y);
 }

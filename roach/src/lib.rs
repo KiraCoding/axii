@@ -1,4 +1,4 @@
-use transcend::ptr::{base, sections, size};
+use igni::program::program;
 
 #[cfg(not(all(target_arch = "x86_64", target_os = "windows", target_env = "msvc")))]
 compile_error!("This crate can only be compiled for the x86_64-pc-windows-msvc target");
@@ -24,10 +24,7 @@ compile_error!("This crate can only be compiled for the x86_64-pc-windows-msvc t
 #[no_mangle]
 #[allow(non_snake_case)]
 pub unsafe extern "system" fn plugin() {
-    println!("Base: {:p}", base());
-    println!("Size: {} KB", size() as f64 / 1024.0);
-
-    println!("{:#?}", sections());
+    println!("{:#?}", program());
 
     // sleep(Duration::from_secs(120));
 
