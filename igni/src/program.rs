@@ -1,4 +1,3 @@
-use crate::ptr::Hookable;
 use crate::section::Section;
 use core::ffi::CStr;
 use core::mem::{transmute_copy, zeroed};
@@ -127,12 +126,3 @@ impl Program {
 
 unsafe impl Send for Program {}
 unsafe impl Sync for Program {}
-
-fn main() {
-    let program = program();
-
-    type AddFn = unsafe extern "C" fn(u8, u8) -> u8;
-    let add_fn: AddFn  = program.rva(0x1);
-
-    add_fn.hook(|x, y| todo!())
-}
