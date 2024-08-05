@@ -1,10 +1,10 @@
+use crate::ptr::Hookable;
 use crate::section::Section;
 use core::ffi::CStr;
 use core::mem::{transmute_copy, zeroed};
 use core::slice::from_raw_parts;
 use rayon::iter::IndexedParallelIterator;
 use rayon::slice::ParallelSlice;
-use windows::Win32::System::Memory::VirtualAlloc;
 use std::sync::LazyLock;
 use windows::core::PCWSTR;
 use windows::Win32::Foundation::HMODULE;
@@ -51,7 +51,7 @@ impl Program {
         &self.sections
     }
 
-    pub fn rva<T>(&self, offset: usize) -> T {
+    pub unsafe fn rva<T>(&self, offset: usize) -> T {
         unsafe { transmute_copy(&self.base.add(offset)) }
     }
 
@@ -127,3 +127,12 @@ impl Program {
 
 unsafe impl Send for Program {}
 unsafe impl Sync for Program {}
+
+fn main() {
+    let program = program();
+
+    type AddFn = unsafe extern "C" fn(u8, u8) -> u8;
+    let add_fn: AddFn  = program.rva(0x1);
+
+    add_fn.hook(|x, y| todo!())
+}

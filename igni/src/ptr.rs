@@ -1,21 +1,40 @@
-pub struct Hook<F> {
-    func: F,
-    enabled: bool,
+// pub struct Hook<F, Args, Ret>
+// where
+//     F: Fn(Args) -> Ret,
+// {
+//     ptr: F, // ptr to extern "C" fn
+//     enabled: bool,
+// }
+
+pub trait Hookable<F> {
+    fn hook(&self, function: F);
 }
 
-// impl Hookable for any extern fn
-pub trait Hookable {}
-
-fn main() {
-    extern "C" fn add(x: u8, y: u8) -> u8 {
-        x + y
-    }
-
-    extern "C" fn add3(x: u8, y: u8, z: u8) -> u8 {
-        x + y + z
-    }
-
-    // hook takes closure of `fn` sig except ret
-    let handle = add.hook(|x, y| x - y);
-    let handle1 = add3.hook(|x, y, z| x - y);
+macro_rules! impl_hookable {
+    ($(($($args:ident),*)),*) => {
+        $(
+            impl<F, R, $($args),*> Hookable<F> for unsafe extern "C" fn($($args),*) -> R
+            where
+                F: FnMut($($args),*)
+            {
+                fn hook(&self, function: F) {
+                    todo!()
+                }
+            }
+        )*
+    };
 }
+
+impl_hookable! {
+    (),
+    (A1),
+    (A1, A2),
+    (A1, A2, A3),
+    (A1, A2, A3, A4)
+}
+
+// unsafe extern "C" fn(...) -> R
+// unsafe extern "cdecl" fn(...) -> R
+// unsafe extern "win64" fn(...) -> R
+// unsafe extern "fastcall" fn(...) -> R
+// unsafe extern "thiscall" fn(...) -> R
