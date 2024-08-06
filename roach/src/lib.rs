@@ -1,4 +1,7 @@
-use igni::program::program;
+use std::slice::from_raw_parts;
+
+use igni::{program::program, section, sig};
+use windows::Win32::System::Memory::{VirtualProtect, PAGE_EXECUTE_READWRITE};
 
 #[cfg(not(all(target_arch = "x86_64", target_os = "windows", target_env = "msvc")))]
 compile_error!("This crate can only be compiled for the x86_64-pc-windows-msvc target");
@@ -24,7 +27,24 @@ compile_error!("This crate can only be compiled for the x86_64-pc-windows-msvc t
 #[no_mangle]
 #[allow(non_snake_case)]
 pub unsafe extern "system" fn plugin() {
-    println!("{:#?}", program());
+    let program = program();
+    dbg!(program.base());
+
+    dbg!(program.sections());
+
+    let result = program
+        .scan(&[
+            0x48, 0x89, 0x5c, 0x24, 0x10, 0x57, 0x48, 0x83, 0xEC, 0x20, 0xBA, 0x10, 0x00, 0x00,
+            0x00,
+        ])
+        .unwrap();
+
+    dbg!(result);
+
+    // let mut array: [u8; 15] = [0; 15];
+    // std::ptr::copy_nonoverlapping(result, array.as_mut_ptr(), 15);
+
+    println!("{:x?}", from_raw_parts(result, 100));
 
     // sleep(Duration::from_secs(120));
 

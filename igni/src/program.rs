@@ -15,6 +15,7 @@ use windows::Win32::System::Threading::GetCurrentProcess;
 
 static PROGRAM: LazyLock<Program> = LazyLock::new(Program::init);
 
+#[inline(always)]
 pub fn program() -> &'static Program {
     Program::new()
 }
@@ -27,8 +28,8 @@ pub struct Program {
 }
 
 impl Program {
-    #[inline]
     #[must_use]
+    #[inline(always)]
     pub fn new() -> &'static Self {
         &PROGRAM
     }
@@ -59,7 +60,7 @@ impl Program {
         unsafe { from_raw_parts(self.base.cast(), self.len) }
     }
 
-    pub fn scan(&self, pattern: &[u8]) -> Option<*const usize> {
+    pub fn scan(&self, pattern: &[u8]) -> Option<*const u8> {
         self.as_slice()
             .par_windows(pattern.len())
             .position_first(|window| {
@@ -68,7 +69,7 @@ impl Program {
                     .enumerate()
                     .all(|(i, &p)| p == 0xFF || window[i] == p)
             })
-            .map(|offset| unsafe { self.base.add(offset).cast() })
+            .map(|offset| unsafe { (self.base as *const u8).add(offset) })
     }
 
     fn init() -> Self {
