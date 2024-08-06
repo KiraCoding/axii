@@ -58,7 +58,6 @@ macro_rules! impl_hookable {
     };
 }
 
-// how could we make it a recursive macro so we can write impl_hookable!(A0, A1, A2, A3, A4, A5...)
 impl_hookable! {
     (),
     (A1),
