@@ -1,13 +1,10 @@
-// pub struct Hook<F, Args, Ret>
-// where
-//     F: Fn(Args) -> Ret,
-// {
-//     ptr: F, // ptr to extern "C" fn
-//     enabled: bool,
-// }
+#[derive(Debug)]
+pub struct Hook {
+    enabled: bool,
+}
 
 pub trait Hookable<F> {
-    fn hook(&self, function: F);
+    fn hook(&self, function: F) -> Hook;
 }
 
 macro_rules! impl_hookable {
@@ -17,7 +14,43 @@ macro_rules! impl_hookable {
             where
                 F: FnMut($($args),*)
             {
-                fn hook(&self, function: F) {
+                fn hook(&self, function: F) -> Hook {
+                    todo!()
+                }
+            }
+
+            impl<F, R, $($args),*> Hookable<F> for unsafe extern "cdecl" fn($($args),*) -> R
+            where
+                F: FnMut($($args),*)
+            {
+                fn hook(&self, function: F) -> Hook {
+                    todo!()
+                }
+            }
+
+            impl<F, R, $($args),*> Hookable<F> for unsafe extern "win64" fn($($args),*) -> R
+            where
+                F: FnMut($($args),*)
+            {
+                fn hook(&self, function: F) -> Hook {
+                    todo!()
+                }
+            }
+
+            impl<F, R, $($args),*> Hookable<F> for unsafe extern "fastcall" fn($($args),*) -> R
+            where
+                F: FnMut($($args),*)
+            {
+                fn hook(&self, function: F) -> Hook {
+                    todo!()
+                }
+            }
+
+            impl<F, R, $($args),*> Hookable<F> for unsafe extern "thiscall" fn($($args),*) -> R
+            where
+                F: FnMut($($args),*)
+            {
+                fn hook(&self, function: F) -> Hook {
                     todo!()
                 }
             }
@@ -25,6 +58,7 @@ macro_rules! impl_hookable {
     };
 }
 
+// how could we make it a recursive macro so we can write impl_hookable!(A0, A1, A2, A3, A4, A5...)
 impl_hookable! {
     (),
     (A1),
@@ -33,8 +67,3 @@ impl_hookable! {
     (A1, A2, A3, A4)
 }
 
-// unsafe extern "C" fn(...) -> R
-// unsafe extern "cdecl" fn(...) -> R
-// unsafe extern "win64" fn(...) -> R
-// unsafe extern "fastcall" fn(...) -> R
-// unsafe extern "thiscall" fn(...) -> R
