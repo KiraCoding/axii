@@ -2,6 +2,13 @@
 > [!IMPORTANT]\
 > WHSE is currently under development, and official releases have not been shipped yet.
 
+| Crate         | Description |
+|---------------|-------------|
+| [axii_loader] |             |
+| [axii_proxy]  |             |
+| [axii_runner] |             |
+| [igni]        |             |
+
 ## Compatiblity
 WHSE will support the latest version of `The Witcher 3: Wild Hunt` available on Steam.
 
@@ -17,3 +24,8 @@ WHSE will support the latest version of `The Witcher 3: Wild Hunt` available on 
 > This project is independent and not affiliated with `CD Project RED` in any way.
 
 Todo: Decide on licensing
+
+[axii_loader]: ./axii_loader/
+[axii_proxy]:  ./axii_proxy/
+[axii_runner]: ./axii_runner/
+[igni]:        ./igni/
