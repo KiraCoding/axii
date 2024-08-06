@@ -10,7 +10,7 @@
 | [igni]        |             |
 
 ## Compatiblity
-WHSE will support the latest version of `The Witcher 3: Wild Hunt` available on Steam.
+WHSE will support the latest version of `The Witcher 3: Wild Hunt` DirectX12 available on Steam.
 
 ## Build
 
