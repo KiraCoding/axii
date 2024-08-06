@@ -1,7 +1,11 @@
 # Wild Hunt Script Extender (WHSE)
+> [!IMPORTANT]\
+> WHSE is currently under development, and official releases have not been shipped yet.
 
 ## Compatiblity
 WHSE will support the latest version of `The Witcher 3: Wild Hunt` available on Steam.
+
+## Build
 
 ## Installation
 1. Copy `dinput8.dll` into `bin/x64_dx12`.
