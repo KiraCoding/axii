@@ -1,20 +1,15 @@
-# Axii - Witcher 3 plugin loader
+# Wild Hunt Script Extender (WHSE)
 
-> [!TIP]\
-> Move `target/x86_64-pc-windows-msvc/release/dinput8.dll` to `bin/x64_dx12`
-> 
-> Move `target/x86_64-pc-windows-msvc/release/axii.dll` to `bin/whse`, plugins go into `bin/whse/plugins`
->
-> Plugin entry point:
-> ```rust
-> #[no_mangle]
-> unsafe extern "system" fn plugin() {}
-> ```
+## Compatiblity
+WHSE will support the latest version of `The Witcher 3: Wild Hunt` available on Steam.
 
-Rust Witcher 3 DLL injection example using `dinput8` proxying `DirectInput8Create`.
+## Installation
+1. Copy `dinput8.dll` into `bin/x64_dx12`.
+2. Copy `axii.dll` into `bin/whse`.
+3. Place all your plugins into `bin/whse/plugins`.
 
 ## License
 > [!NOTE]\
 > This project is independent and not affiliated with `CD Project RED` in any way.
 
-Todo
+Todo: Decide on licensing
