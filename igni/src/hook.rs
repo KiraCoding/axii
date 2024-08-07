@@ -9,9 +9,9 @@ pub unsafe fn copy_rw<T>(src: *const T, dst: *mut T, count: usize) {
     unsafe { VirtualProtect(src.cast(), size, old_protect, &mut old_protect).unwrap() };
 }
 
-pub trait Hookable<F> {
-    fn hook(&self, function: F) {
-        let ptr = addr_of!(self) as *mut u8;
+pub trait Hookable<F>: Copy {
+    fn hook(self, function: F) {
+        let ptr = self.as_u8_ptr();
         let function = addr_of!(function) as usize;
 
         let bytes = {
@@ -24,6 +24,8 @@ pub trait Hookable<F> {
 
         unsafe { copy_rw(bytes.as_ptr(), ptr, bytes.len()) };
     }
+
+    fn as_u8_ptr(self) -> *mut u8;
 }
 
 macro_rules! impl_hookable {
@@ -31,23 +33,43 @@ macro_rules! impl_hookable {
         $(
             impl<F, R, $($args),*> Hookable<F> for unsafe extern "C" fn($($args),*) -> R
             where
-                F: FnMut($($args),*) {}
+                F: FnMut($($args),*) {
+                    fn as_u8_ptr(self) -> *mut u8 {
+                        self as *mut u8
+                    }
+                }
 
             impl<F, R, $($args),*> Hookable<F> for unsafe extern "cdecl" fn($($args),*) -> R
             where
-                F: FnMut($($args),*) {}
+                F: FnMut($($args),*) {
+                    fn as_u8_ptr(self) -> *mut u8 {
+                        self as *mut u8
+                    }
+                }
 
             impl<F, R, $($args),*> Hookable<F> for unsafe extern "win64" fn($($args),*) -> R
             where
-                F: FnMut($($args),*) {}
+                F: FnMut($($args),*) {
+                    fn as_u8_ptr(self) -> *mut u8 {
+                        self as *mut u8
+                    }
+                }
 
             impl<F, R, $($args),*> Hookable<F> for unsafe extern "fastcall" fn($($args),*) -> R
             where
-                F: FnMut($($args),*) {}
+                F: FnMut($($args),*) {
+                    fn as_u8_ptr(self) -> *mut u8 {
+                        self as *mut u8
+                    }
+                }
 
             impl<F, R, $($args),*> Hookable<F> for unsafe extern "thiscall" fn($($args),*) -> R
             where
-                F: FnMut($($args),*) {}
+                F: FnMut($($args),*) {
+                    fn as_u8_ptr(self) -> *mut u8 {
+                        self as *mut u8
+                    }
+                }
         )*
     };
 }
