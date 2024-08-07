@@ -22,7 +22,7 @@ impl Section {
                     .enumerate()
                     .all(|(i, &p)| p == 0xFF || window[i] == p)
             })
-            .map(|offset| unsafe { self.base.add(offset).cast() })
+            .map(|offset| unsafe { (self.base as *const u8).add(offset) })
     }
 }
 

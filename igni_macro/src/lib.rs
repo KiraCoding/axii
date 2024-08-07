@@ -7,7 +7,7 @@ pub fn sig(input: TokenStream) -> TokenStream {
 
     let bytes: Vec<u8> = input
         .split_ascii_whitespace()
-        .map(|hex| u8::from_str_radix(hex, 16).unwrap())
+        .map(|hex| u8::from_str_radix(hex, 16).expect("Invalid hex literal"))
         .collect();
 
     quote! {

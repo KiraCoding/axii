@@ -1,9 +1,46 @@
 use core::ptr::{addr_of, copy_nonoverlapping};
 use windows::Win32::System::Memory::{VirtualProtect, PAGE_EXECUTE_READWRITE};
 
+/// A handle to a hook
 #[derive(Debug)]
 pub struct Hook {
+    ptr: *const u8,
     enabled: bool,
+    original: [u8; 5],
+}
+
+impl Hook {
+    pub fn unhook(self) {
+        let mut old_protect = Default::default();
+
+        unsafe {
+            VirtualProtect(
+                self.ptr.cast(),
+                self.original.len(),
+                PAGE_EXECUTE_READWRITE,
+                &mut old_protect,
+            )
+            .unwrap()
+        };
+
+        unsafe {
+            copy_nonoverlapping(
+                self.original.as_ptr(),
+                self.ptr.cast_mut(),
+                self.original.len(),
+            )
+        };
+
+        unsafe {
+            VirtualProtect(
+                self.ptr.cast(),
+                self.original.len(),
+                old_protect,
+                &mut old_protect,
+            )
+            .unwrap()
+        };
+    }
 }
 
 pub trait Hookable<F> {
@@ -64,7 +101,7 @@ macro_rules! impl_hookable {
     };
 }
 
-fn hook(ptr: *const usize, function: *const usize) -> Hook {
+fn hook(ptr: *const u8, function: *const usize) -> Hook {
     // relay_func_memory = VirtualAlloc; // Allocate a page near the address to hook
 
     let absolute_jmp = [
@@ -86,7 +123,11 @@ fn hook(ptr: *const usize, function: *const usize) -> Hook {
         )
     };
 
-    Hook { enabled: true }
+    Hook {
+        ptr,
+        enabled: true,
+        original: Vec::new(),
+    }
 }
 
 impl_hookable! {
