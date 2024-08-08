@@ -28,20 +28,14 @@ pub unsafe extern "system" fn plugin() {
     dbg!(program.base());
     dbg!(program.sections());
 
-    let result = program
-        .scan(&[
-            0x48, 0x89, 0x5c, 0x24, 0x10, 0x57, 0x48, 0x83, 0xEC, 0x20, 0xBA, 0x10, 0x00, 0x00,
-            0x00,
-        ])
-        .unwrap();
+    let sig = &[
+        0x48, 0x89, 0x5c, 0x24, 0x10, 0x57, 0x48, 0x83, 0xEC, 0x20, 0xBA, 0x10, 0x00, 0x00, 0x00,
+    ];
 
-    let result: unsafe extern "cdecl" fn() = std::mem::transmute(result);
-
-    dbg!(result);
-
-    result.hook(|| {
-        println!("Hook")
-    });
+    program
+        .scan::<unsafe extern "cdecl" fn()>(sig)
+        .unwrap()
+        .hook(|| println!("Hook"));
 
     // sleep(Duration::from_secs(120));
 

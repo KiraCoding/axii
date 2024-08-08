@@ -35,7 +35,7 @@ pub trait Hookable<F>: Copy {
 macro_rules! impl_hookable {
     ($(($($args:ident),*)),*) => {
         $(
-            impl<F, R, $($args),*> Hookable<F> for unsafe extern "C" fn($($args),*) -> R
+            impl<F, R, $($args),*> Hookable<F> for *const unsafe extern "C" fn($($args),*) -> R
             where
                 F: FnMut($($args),*) {
                     fn as_u8_ptr(self) -> *mut u8 {
@@ -43,7 +43,7 @@ macro_rules! impl_hookable {
                     }
                 }
 
-            impl<F, R, $($args),*> Hookable<F> for unsafe extern "cdecl" fn($($args),*) -> R
+            impl<F, R, $($args),*> Hookable<F> for *const unsafe extern "cdecl" fn($($args),*) -> R
             where
                 F: FnMut($($args),*) {
                     fn as_u8_ptr(self) -> *mut u8 {
@@ -51,7 +51,7 @@ macro_rules! impl_hookable {
                     }
                 }
 
-            impl<F, R, $($args),*> Hookable<F> for unsafe extern "win64" fn($($args),*) -> R
+            impl<F, R, $($args),*> Hookable<F> for *const unsafe extern "win64" fn($($args),*) -> R
             where
                 F: FnMut($($args),*) {
                     fn as_u8_ptr(self) -> *mut u8 {
@@ -59,7 +59,7 @@ macro_rules! impl_hookable {
                     }
                 }
 
-            impl<F, R, $($args),*> Hookable<F> for unsafe extern "fastcall" fn($($args),*) -> R
+            impl<F, R, $($args),*> Hookable<F> for *const unsafe extern "fastcall" fn($($args),*) -> R
             where
                 F: FnMut($($args),*) {
                     fn as_u8_ptr(self) -> *mut u8 {
@@ -67,7 +67,7 @@ macro_rules! impl_hookable {
                     }
                 }
 
-            impl<F, R, $($args),*> Hookable<F> for unsafe extern "thiscall" fn($($args),*) -> R
+            impl<F, R, $($args),*> Hookable<F> for *const unsafe extern "thiscall" fn($($args),*) -> R
             where
                 F: FnMut($($args),*) {
                     fn as_u8_ptr(self) -> *mut u8 {
