@@ -12,7 +12,10 @@ pub unsafe fn copy_rw<T>(src: *const T, dst: *mut T, count: usize) {
 pub trait Hookable<F>: Copy {
     fn hook(self, function: F) {
         let ptr = self.as_u8_ptr();
+        println!("Ptr: {:p}", ptr);
+
         let function = addr_of!(function) as usize;
+        println!("Closure: {:x}", function);
 
         let bytes = {
             let mut jmp_bytes: [u8; 14] = [
@@ -21,6 +24,7 @@ pub trait Hookable<F>: Copy {
             jmp_bytes[6..14].copy_from_slice(&function.to_le_bytes());
             jmp_bytes
         };
+        println!("Bytes: {:x?}", bytes);
 
         unsafe { copy_rw(bytes.as_ptr(), ptr, bytes.len()) };
     }

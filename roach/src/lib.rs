@@ -1,5 +1,4 @@
-use std::slice::from_raw_parts;
-use igni::{program::program};
+use igni::{hook::Hookable, program::program};
 
 #[cfg(not(all(target_arch = "x86_64", target_os = "windows", target_env = "msvc")))]
 compile_error!("This crate can only be compiled for the x86_64-pc-windows-msvc target");
@@ -36,12 +35,13 @@ pub unsafe extern "system" fn plugin() {
         ])
         .unwrap();
 
+    let result: unsafe extern "cdecl" fn() = std::mem::transmute(result);
+
     dbg!(result);
 
-    // let mut array: [u8; 15] = [0; 15];
-    // std::ptr::copy_nonoverlapping(result, array.as_mut_ptr(), 15);
-
-    println!("{:x?}", from_raw_parts(result, 100));
+    result.hook(|| {
+        println!("Hook")
+    });
 
     // sleep(Duration::from_secs(120));
 
