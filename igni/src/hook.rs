@@ -1,4 +1,4 @@
-use core::ptr::{addr_of, copy_nonoverlapping};
+use core::ptr::copy_nonoverlapping;
 use windows::Win32::System::Memory::{VirtualProtect, PAGE_EXECUTE_READWRITE};
 
 pub unsafe fn copy_rw<T>(src: *const T, dst: *mut T, count: usize) {
