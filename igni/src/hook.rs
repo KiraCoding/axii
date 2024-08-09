@@ -12,7 +12,7 @@ pub unsafe fn copy_rw<T>(src: *const T, dst: *mut T, count: usize) {
 pub trait Hookable<F>: Copy {
     fn hook(self, function: F) {
         let ptr = self.as_u8_ptr();
-        let func = self.thunk(function);
+        let func = self.trampoline(function);
         dbg!(func);
 
         let bytes = {
@@ -31,7 +31,7 @@ pub trait Hookable<F>: Copy {
 
     fn as_u8_ptr(self) -> *mut u8;
 
-    fn thunk(self, function: F) -> (*const (), *mut F);
+    fn trampoline(self, function: F) -> (*const (), *mut F);
 }
 
 macro_rules! impl_hookable {
@@ -45,7 +45,7 @@ macro_rules! impl_hookable {
                         self as *mut u8
                     }
 
-                    fn thunk(self, function: F) -> (*const (), *mut F) {
+                    fn trampoline(self, function: F) -> (*const (), *mut F) {
                         unsafe extern "C" fn ffi_thunk<F, $($args),*>(data: *mut F, $($args: $args),*)
                         where
                             F: FnMut($($args),*) {
@@ -65,7 +65,7 @@ macro_rules! impl_hookable {
                         self as *mut u8
                     }
 
-                    fn thunk(self, function: F) -> (*const (), *mut F) {
+                    fn trampoline(self, function: F) -> (*const (), *mut F) {
                         unsafe extern "win64" fn ffi_thunk<F, $($args),*>(data: *mut F, $($args: $args),*)
                         where
                             F: FnMut($($args),*) {

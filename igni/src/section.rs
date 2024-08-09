@@ -4,7 +4,7 @@ use rayon::{iter::IndexedParallelIterator, slice::ParallelSlice};
 #[derive(Debug)]
 pub struct Section {
     pub name: String,
-    pub base: *const usize,
+    pub base: *const (),
     pub(crate) len: usize,
 }
 
