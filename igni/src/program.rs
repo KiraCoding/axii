@@ -54,7 +54,7 @@ impl Program {
 
     #[inline]
     pub unsafe fn rva<T: Copy>(&self, offset: usize) -> T {
-        unsafe { transmute_copy(&self.base.add(offset)) }
+        unsafe { transmute_copy(&(self.base as *const u8).add(offset)) }
     }
 
     /// Returns a slice containing the entire program.
