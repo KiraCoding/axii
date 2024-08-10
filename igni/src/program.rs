@@ -1,5 +1,6 @@
 use crate::section::Section;
 use core::ffi::CStr;
+use core::mem::transmute_copy;
 use core::mem::zeroed;
 use core::slice::from_raw_parts;
 use rayon::iter::IndexedParallelIterator;
@@ -52,8 +53,8 @@ impl Program {
     }
 
     #[inline]
-    pub unsafe fn rva<T>(&self, offset: usize) -> T {
-        unsafe { self.base.add(offset).cast::<T>().read() }
+    pub unsafe fn rva<T: Copy>(&self, offset: usize) -> *const T {
+        unsafe { self.base.add(offset).cast() }
     }
 
     /// Returns a slice containing the entire program.
@@ -61,7 +62,7 @@ impl Program {
         unsafe { from_raw_parts(self.base.cast(), self.len) }
     }
 
-    pub fn scan<T>(&self, pattern: &[u8]) -> Option<T> {
+    pub fn scan<T: Copy>(&self, pattern: &[u8]) -> Option<T> {
         self.as_slice()
             .par_windows(pattern.len())
             .position_first(|window| {
@@ -70,7 +71,7 @@ impl Program {
                     .enumerate()
                     .all(|(i, &p)| p == 0xFF || window[i] == p)
             })
-            .map(|offset| unsafe { (self.base as *const u8).add(offset).cast::<T>().read() })
+            .map(|offset| unsafe { std::mem::transmute(self.base.add(offset)) })
     }
 
     fn init() -> Self {

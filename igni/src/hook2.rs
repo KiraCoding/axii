@@ -1,6 +1,7 @@
 use core::arch::asm;
 use core::ptr::{null_mut, write};
 use core::sync::atomic::{AtomicPtr, Ordering};
+use std::slice::from_raw_parts;
 use windows::Win32::System::Memory::{VirtualProtect, PAGE_EXECUTE_READWRITE};
 
 static STATIC_CONTEXT: AtomicPtr<()> = AtomicPtr::new(null_mut());
@@ -17,6 +18,7 @@ struct ClosureInner<F> {
 
 pub fn hook<H: Hook<F>, F>(ptr: H, f: F) {
     let ptr_bytes = dbg!(ptr.as_u8_ptr());
+
     let trampoline = H::trampoline(f);
     let context = Box::into_raw(trampoline.inner) as usize;
 
@@ -44,7 +46,7 @@ pub fn hook<H: Hook<F>, F>(ptr: H, f: F) {
     unsafe {
         VirtualProtect(
             ptr_bytes.cast(),
-            bytes.len(),
+            1024,
             PAGE_EXECUTE_READWRITE,
             &mut old_protect,
         )
@@ -52,7 +54,8 @@ pub fn hook<H: Hook<F>, F>(ptr: H, f: F) {
 
         write(ptr_bytes as *mut _, bytes);
 
-        VirtualProtect(ptr_bytes.cast(), bytes.len(), old_protect, &mut old_protect).unwrap();
+        let mut fin = Default::default();
+        VirtualProtect(ptr_bytes.cast(), 1024, old_protect, &mut fin).unwrap();
     };
 
     #[naked]
@@ -88,7 +91,7 @@ macro_rules! test {
     };
     (@impl $($args:ident),* $(,)?) => {
         #[allow(non_snake_case)]
-        impl<F, R, $($args),*> Hook<F> for unsafe extern "C" fn($($args,)*) -> R
+        impl<F, R, $($args),*> Hook<F> for *const unsafe extern "C" fn($($args,)*) -> R
         where
             F: FnMut($($args),*) + 'static
         {
