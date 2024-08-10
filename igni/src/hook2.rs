@@ -16,8 +16,15 @@ struct ClosureInner<F> {
     data: F,
 }
 
-pub fn hook<H: Hook<F>, F>(ptr: H, f: F) {
+pub fn hook<H: Hook<F>, F>(ptr: H, f: F) -> HookGuard<H> {
     let ptr_bytes = dbg!(ptr.as_u8_ptr());
+
+    let mut og_bytes = [0u8; 16];
+    unsafe {
+        std::ptr::copy_nonoverlapping(ptr_bytes as *const u8, og_bytes.as_mut_ptr(), 16);
+    }
+
+    println!("WO edits: {:#x?}", unsafe { from_raw_parts(ptr_bytes, 50) });
 
     let trampoline = H::trampoline(f);
     let context = Box::into_raw(trampoline.inner) as usize;
@@ -40,7 +47,9 @@ pub fn hook<H: Hook<F>, F>(ptr: H, f: F) {
 
     bytes[11..][..4].copy_from_slice(&offset.to_ne_bytes());
 
-    dbg!(bytes);
+    println!("W edits: {:#x?}", unsafe {
+        from_raw_parts(bytes.as_ptr(), 50)
+    });
 
     let mut old_protect = Default::default();
     unsafe {
@@ -74,10 +83,19 @@ pub fn hook<H: Hook<F>, F>(ptr: H, f: F) {
         );
     }
 
-    println!("DONE")
+    println!("DONE");
+
+    HookGuard { ptr, og_bytes }
 }
 
-pub struct HookGuard {}
+pub struct HookGuard<H> {
+    ptr: H,             // ptr to og function
+    og_bytes: [u8; 16], // bytes of og function
+}
+
+impl<H> HookGuard<H> {
+    pub fn unhook(&self) {}
+}
 
 pub trait Hook<F>: Copy {
     fn as_u8_ptr(self) -> *mut u8;
@@ -115,7 +133,7 @@ macro_rules! test {
                 }
             }
         }
-        
+
         // impl<F, R, $($args),*> Hook<F> for unsafe extern "win64" fn($($args,)*) -> R {}
     };
     () => {
