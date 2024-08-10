@@ -52,8 +52,8 @@ impl Program {
     }
 
     #[inline]
-    pub unsafe fn rva<T>(&self, offset: usize) -> *const T {
-        unsafe { self.base.add(offset).cast() }
+    pub unsafe fn rva<T>(&self, offset: usize) -> T {
+        unsafe { self.base.add(offset).cast::<T>().read() }
     }
 
     /// Returns a slice containing the entire program.
@@ -61,7 +61,7 @@ impl Program {
         unsafe { from_raw_parts(self.base.cast(), self.len) }
     }
 
-    pub fn scan<T>(&self, pattern: &[u8]) -> Option<*const T> {
+    pub fn scan<T>(&self, pattern: &[u8]) -> Option<T> {
         self.as_slice()
             .par_windows(pattern.len())
             .position_first(|window| {
@@ -70,7 +70,7 @@ impl Program {
                     .enumerate()
                     .all(|(i, &p)| p == 0xFF || window[i] == p)
             })
-            .map(|offset| unsafe { (self.base as *const T).add(offset) })
+            .map(|offset| unsafe { (self.base as *const u8).add(offset).cast::<T>().read() })
     }
 
     fn init() -> Self {
