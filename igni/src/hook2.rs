@@ -91,7 +91,7 @@ macro_rules! test {
     };
     (@impl $($args:ident),* $(,)?) => {
         #[allow(non_snake_case)]
-        impl<F, R, $($args),*> Hook<F> for *const unsafe extern "C" fn($($args,)*) -> R
+        impl<F, R, $($args),*> Hook<F> for unsafe extern "C" fn($($args,)*) -> R
         where
             F: FnMut($($args),*) + 'static
         {

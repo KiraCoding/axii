@@ -53,8 +53,8 @@ impl Program {
     }
 
     #[inline]
-    pub unsafe fn rva<T: Copy>(&self, offset: usize) -> *const T {
-        unsafe { self.base.add(offset).cast() }
+    pub unsafe fn rva<T: Copy>(&self, offset: usize) -> T {
+        unsafe { transmute_copy(&self.base.add(offset)) }
     }
 
     /// Returns a slice containing the entire program.
@@ -71,7 +71,7 @@ impl Program {
                     .enumerate()
                     .all(|(i, &p)| p == 0xFF || window[i] == p)
             })
-            .map(|offset| unsafe { std::mem::transmute(self.base.add(offset)) })
+            .map(|offset| unsafe { self.rva(offset) })
     }
 
     fn init() -> Self {
