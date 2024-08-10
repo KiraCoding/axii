@@ -16,7 +16,6 @@ pub struct Closure<F> {
 
 pub trait Hookable<F>: Copy {
     fn hook(self, function: F) {
-        let ptr = self.as_u8_ptr();
         let func = self.trampoline(function);
         dbg!(func.ptr);
 
@@ -30,7 +29,7 @@ pub trait Hookable<F>: Copy {
         };
         println!("Bytes: {:x?}", bytes);
 
-        unsafe { copy_rw(bytes.as_ptr(), ptr, bytes.len()) };
+        unsafe { copy_rw(bytes.as_ptr(), self.as_u8_ptr(), bytes.len()) };
         println!("Placement done")
     }
 
