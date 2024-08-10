@@ -9,6 +9,7 @@ pub unsafe fn copy_rw<T>(src: *const T, dst: *mut T, count: usize) {
     unsafe { VirtualProtect(src.cast(), size, old_protect, &mut old_protect).unwrap() };
 }
 
+#[allow(dead_code)]
 pub struct Closure<F> {
     ptr: *const (),
     data: *mut F

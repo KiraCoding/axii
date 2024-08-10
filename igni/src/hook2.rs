@@ -40,8 +40,6 @@ pub fn hook<H: Hook<F>, F>(ptr: H, f: F) {
 
     dbg!(bytes);
 
-    // I'm assuming this is sound... but it'll likely crash due to W^X
-
     let mut old_protect = Default::default();
     unsafe {
         VirtualProtect(
@@ -72,41 +70,54 @@ pub fn hook<H: Hook<F>, F>(ptr: H, f: F) {
             options(noreturn)
         );
     }
+
+    println!("DONE")
 }
+
+pub struct HookGuard {}
 
 pub trait Hook<F>: Copy {
     fn as_u8_ptr(self) -> *mut u8;
     fn trampoline(f: F) -> Closure<F>;
 }
 
-macro_rules! impl_hook {
-    ($($a:ident: $at:ident),*) => {
-        impl<F, R, $($at),*> Hook<F> for unsafe extern "C" fn($($at),*) -> R
+macro_rules! test {
+    ($arg:ident, $($args:ident),* $(,)?) => {
+        test!(@impl $arg, $($args),*);
+        test!($($args,)*);
+    };
+    (@impl $($args:ident),* $(,)?) => {
+        #[allow(non_snake_case)]
+        impl<F, R, $($args),*> Hook<F> for unsafe extern "C" fn($($args,)*) -> R
         where
-            F: FnMut($($at),*) + 'static
+            F: FnMut($($args),*) + 'static
         {
             fn as_u8_ptr(self) -> *mut u8 {
                 self as *mut u8
             }
 
             fn trampoline(f: F) -> Closure<F> {
-                unsafe extern "C" fn thunk<F,R, $($at),*>( $($a: $at),* )
+                unsafe extern "C" fn thunk<F,R, $($args),*>($($args: $args),*)
                 where
-                    F: FnMut($($at),* )
+                    F: FnMut($($args),* )
                 {
                     let p = STATIC_CONTEXT.swap(null_mut(), Ordering::Relaxed) as *mut ClosureInner<F>;
-                    ((*p).data)( $($a),* );
+                    ((*p).data)($($args),*);
                 }
                 Closure {
                     inner: Box::new(ClosureInner {
-                        ptr: thunk::<F, R, $($at),*> as *const (),
+                        ptr: thunk::<F, R, $($args),*> as *const (),
                         data: f,
                     })
                 }
             }
         }
+        
+        // impl<F, R, $($args),*> Hook<F> for unsafe extern "win64" fn($($args,)*) -> R {}
+    };
+    () => {
+        test!(@impl);
     };
 }
 
-impl_hook!();
-impl_hook!(a: A);
+test!(A, B, C, D);
