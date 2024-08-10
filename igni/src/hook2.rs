@@ -16,7 +16,7 @@ struct ClosureInner<F> {
 }
 
 pub fn hook<H: Hook<F>, F>(ptr: H, f: F) {
-    let ptr_bytes = ptr.as_u8_ptr();
+    let ptr_bytes = dbg!(ptr.as_u8_ptr());
     let trampoline = H::trampoline(f);
     let context = Box::into_raw(trampoline.inner) as usize;
 
@@ -37,6 +37,8 @@ pub fn hook<H: Hook<F>, F>(ptr: H, f: F) {
     };
 
     bytes[11..][..4].copy_from_slice(&offset.to_ne_bytes());
+
+    dbg!(bytes);
 
     // I'm assuming this is sound... but it'll likely crash due to W^X
 
