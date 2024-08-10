@@ -9,18 +9,23 @@ pub unsafe fn copy_rw<T>(src: *const T, dst: *mut T, count: usize) {
     unsafe { VirtualProtect(src.cast(), size, old_protect, &mut old_protect).unwrap() };
 }
 
+pub struct Closure<F> {
+    ptr: *const (),
+    data: *mut F
+}
+
 pub trait Hookable<F>: Copy {
     fn hook(self, function: F) {
         let ptr = self.as_u8_ptr();
         let func = self.trampoline(function);
-        dbg!(func);
+        dbg!(func.ptr);
 
         let bytes = {
             let mut jmp_bytes: [u8; 14] = [
                 0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, // jmp [rip + offset]
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // offset
             ];
-            jmp_bytes[6..14].copy_from_slice(&(func.0 as usize).to_le_bytes());
+            jmp_bytes[6..14].copy_from_slice(&(func.ptr as usize).to_le_bytes());
             jmp_bytes
         };
         println!("Bytes: {:x?}", bytes);
@@ -31,7 +36,7 @@ pub trait Hookable<F>: Copy {
 
     fn as_u8_ptr(self) -> *mut u8;
 
-    fn trampoline(self, function: F) -> (*const (), *mut F);
+    fn trampoline(self, function: F) -> Closure<F>;
 }
 
 macro_rules! impl_hookable {
@@ -45,15 +50,17 @@ macro_rules! impl_hookable {
                         self as *mut u8
                     }
 
-                    fn trampoline(self, function: F) -> (*const (), *mut F) {
+                    fn trampoline(self, function: F) -> Closure<F> {
                         unsafe extern "C" fn ffi_thunk<F, $($args),*>(data: *mut F, $($args: $args),*)
                         where
                             F: FnMut($($args),*) {
                             (*(data as *mut F))($($args),*)
                         }
 
-                        let data = Box::into_raw(Box::new(function));
-                        (ffi_thunk::<F, $($args),*> as *const (), data)
+                        Closure {
+                            ptr: ffi_thunk::<F, $($args),*> as *const (),
+                            data: Box::into_raw(Box::new(function)),
+                        }
                     }
                 }
 
@@ -65,15 +72,17 @@ macro_rules! impl_hookable {
                         self as *mut u8
                     }
 
-                    fn trampoline(self, function: F) -> (*const (), *mut F) {
+                    fn trampoline(self, function: F) -> Closure<F> {
                         unsafe extern "win64" fn ffi_thunk<F, $($args),*>(data: *mut F, $($args: $args),*)
                         where
                             F: FnMut($($args),*) {
                             (*(data as *mut F))($($args),*)
                         }
 
-                        let data = Box::into_raw(Box::new(function));
-                        (ffi_thunk::<F, $($args),*> as *const (), data)
+                        Closure {
+                            ptr: ffi_thunk::<F, $($args),*> as *const (),
+                            data: Box::into_raw(Box::new(function)),
+                        }
                     }
                 }
         )*
