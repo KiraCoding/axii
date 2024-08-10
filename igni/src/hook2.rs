@@ -58,11 +58,11 @@ pub fn hook<H: Hook<F>, F>(ptr: H, f: F) {
     #[naked]
     unsafe extern "C" fn stub() {
         asm!(
-            "push rax",   // Get context var from stack, and store in a free register
+            "push rax", // Get context var from stack, and store in a free register
             "2:",
-            "cmpxchg {}, rax",
+            "cmpxchg [rip + {}], rax",
             "test rax, rax",
-            "mov rax, [rsp-8]",  // Grab the context again, since cmpxchg clobbered it
+            "mov rax, [rsp]", // Grab the context again, since cmpxchg clobbered it
             "jnz 2b",
             "pop rax",
             "jmp [rax]",
