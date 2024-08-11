@@ -134,7 +134,7 @@ macro_rules! impl_hook {
         // impl<F, R, $($args),*> Hook<F> for unsafe extern "win64" fn($($args,)*) -> R {}
     };
     () => {
-        test!(@impl);
+        impl_hook!(@impl);
     };
 }
 
