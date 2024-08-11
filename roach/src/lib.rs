@@ -8,13 +8,13 @@ use igni::{hook::hook, program::program};
 pub unsafe extern "system" fn plugin() {
     let program = program();
     println!("Base: {:p}", program.base());
-    println!("Text: {:p}", program.text().unwrap().base());
+    println!("Text: {:p}", program.text().base());
 
     let sig = &[
         0x48, 0x89, 0x5c, 0x24, 0x10, 0x57, 0x48, 0x83, 0xEC, 0x20, 0xBA, 0x10, 0x00, 0x00, 0x00,
     ];
 
-    let addr = dbg!(program.scan::<unsafe extern "C" fn()>(sig).unwrap());
+    let addr = dbg!(program.text().scan::<unsafe extern "C" fn()>(sig).unwrap());
 
     hook(addr, || println!("Hook worked!"));
 }

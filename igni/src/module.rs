@@ -1,4 +1,4 @@
-pub trait Module {
+trait Module {
     fn base(&self) -> *const ();
 
     fn len(&self) -> usize;

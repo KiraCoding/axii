@@ -52,13 +52,11 @@ impl Program {
         &self.sections
     }
 
-    pub fn text(&self) -> Option<&Section> {
-        self.sections.iter().find(|section| section.name == ".text")
-    }
-
-    #[inline]
-    pub unsafe fn rva<T>(&self, offset: usize) -> T {
-        unsafe { transmute_copy(&(self.base as *const u8).add(offset)) }
+    pub fn text(&self) -> &Section {
+        self.sections
+            .iter()
+            .find(|section| section.name == ".text")
+            .unwrap()
     }
 
     /// Returns a slice containing the entire program.
@@ -76,6 +74,11 @@ impl Program {
                     .all(|(i, &p)| p == 0xFF || window[i] == p)
             })
             .map(|offset| unsafe { self.rva(offset) })
+    }
+
+    #[inline]
+    pub unsafe fn rva<T>(&self, offset: usize) -> T {
+        unsafe { transmute_copy(&(self.base as *const u8).add(offset)) }
     }
 
     fn init() -> Self {
@@ -116,7 +119,9 @@ impl Program {
 
                     Section {
                         name,
-                        base: unsafe { (base as *const u8).add(section.VirtualAddress as usize) as *const () },
+                        base: unsafe {
+                            (base as *const u8).add(section.VirtualAddress as usize) as *const ()
+                        },
                         len: unsafe { section.Misc.VirtualSize as usize },
                     }
                 })
