@@ -101,8 +101,8 @@ pub trait Hook<F>: Copy {
 
 macro_rules! impl_hook {
     ($arg:ident, $($args:ident),* $(,)?) => {
-        test!(@impl $arg, $($args),*);
-        test!($($args,)*);
+        impl_hook!(@impl $arg, $($args),*);
+        impl_hook!($($args,)*);
     };
     (@impl $($args:ident),* $(,)?) => {
         #[allow(non_snake_case)]
