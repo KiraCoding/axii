@@ -99,7 +99,7 @@ pub trait Hook<F>: Copy {
     fn trampoline(f: F) -> Closure<F>;
 }
 
-macro_rules! test {
+macro_rules! impl_hook {
     ($arg:ident, $($args:ident),* $(,)?) => {
         test!(@impl $arg, $($args),*);
         test!($($args,)*);
@@ -138,4 +138,4 @@ macro_rules! test {
     };
 }
 
-test!(A, B, C, D);
+impl_hook!(A, B, C, D);

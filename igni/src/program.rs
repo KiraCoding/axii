@@ -57,7 +57,7 @@ impl Program {
     }
 
     #[inline]
-    pub unsafe fn rva<T: Copy>(&self, offset: usize) -> T {
+    pub unsafe fn rva<T>(&self, offset: usize) -> T {
         unsafe { transmute_copy(&(self.base as *const u8).add(offset)) }
     }
 
@@ -66,7 +66,7 @@ impl Program {
         unsafe { from_raw_parts(self.base.cast(), self.len) }
     }
 
-    pub fn scan<T: Copy>(&self, pattern: &[u8]) -> Option<T> {
+    pub unsafe fn scan<T>(&self, pattern: &[u8]) -> Option<T> {
         self.as_slice()
             .par_windows(pattern.len())
             .position_first(|window| {
