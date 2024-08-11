@@ -60,9 +60,9 @@ pub fn hook<H: Hook<F>, F>(ptr: H, f: F) -> HookGuard<H> {
         write(ptr_bytes as *mut _, bytes);
 
         VirtualProtect(ptr_bytes.cast(), bytes.len(), old_protect, &mut old_protect).unwrap();
-
-        println!("W edits: {:#x?}", unsafe { from_raw_parts(ptr_bytes, 50) });
     };
+
+    println!("W edits: {:#x?}", unsafe { from_raw_parts(ptr_bytes, 50) });
 
     #[naked]
     unsafe extern "C" fn stub() {
