@@ -45,17 +45,13 @@ pub fn hook<H: Hook<F>, F>(ptr: H, f: F) -> HookGuard<H> {
         ofs as u32
     };
 
-    bytes[11..][..4].copy_from_slice(&offset.to_ne_bytes());
-
-    println!("W edits: {:#x?}", unsafe {
-        from_raw_parts(bytes.as_ptr(), 50)
-    });
+    bytes[12..][..4].copy_from_slice(&offset.to_ne_bytes());
 
     let mut old_protect = Default::default();
     unsafe {
         VirtualProtect(
             ptr_bytes.cast(),
-            1024,
+            bytes.len(),
             PAGE_EXECUTE_READWRITE,
             &mut old_protect,
         )
@@ -63,8 +59,9 @@ pub fn hook<H: Hook<F>, F>(ptr: H, f: F) -> HookGuard<H> {
 
         write(ptr_bytes as *mut _, bytes);
 
-        let mut fin = Default::default();
-        VirtualProtect(ptr_bytes.cast(), 1024, old_protect, &mut fin).unwrap();
+        VirtualProtect(ptr_bytes.cast(), bytes.len(), old_protect, &mut old_protect).unwrap();
+
+        println!("W edits: {:#x?}", unsafe { from_raw_parts(ptr_bytes, 50) });
     };
 
     #[naked]
