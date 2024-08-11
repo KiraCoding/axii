@@ -8,6 +8,7 @@ use igni::{hook::hook, program::program};
 pub unsafe extern "system" fn plugin() {
     let program = program();
     dbg!(program.base());
+    dbg!(program.text().unwrap().base());
 
     let sig = &[
         0x48, 0x89, 0x5c, 0x24, 0x10, 0x57, 0x48, 0x83, 0xEC, 0x20, 0xBA, 0x10, 0x00, 0x00, 0x00,

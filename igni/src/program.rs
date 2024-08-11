@@ -116,7 +116,7 @@ impl Program {
 
                     Section {
                         name,
-                        base: unsafe { base.add(section.VirtualAddress as usize) },
+                        base: unsafe { (base as *const u8).add(section.VirtualAddress as usize) as *const () },
                         len: unsafe { section.Misc.VirtualSize as usize },
                     }
                 })

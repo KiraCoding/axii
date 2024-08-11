@@ -9,6 +9,11 @@ pub struct Section {
 }
 
 impl Section {
+    #[inline]
+    pub fn base(&self) -> *const () {
+        self.base
+    }
+
     pub fn as_slice(&self) -> &[u8] {
         unsafe { from_raw_parts(self.base.cast(), self.len) }
     }
