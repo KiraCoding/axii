@@ -1,8 +1,7 @@
 #![feature(naked_functions)]
 
-pub mod hook;
 pub mod program;
 pub mod section;
-pub mod hook2;
+pub mod hook;
 
 pub use igni_macro::sig;

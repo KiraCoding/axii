@@ -52,6 +52,10 @@ impl Program {
         &self.sections
     }
 
+    pub fn text(&self) -> Option<&Section> {
+        self.sections.iter().find(|section| section.name == ".text")
+    }
+
     #[inline]
     pub unsafe fn rva<T: Copy>(&self, offset: usize) -> T {
         unsafe { transmute_copy(&(self.base as *const u8).add(offset)) }

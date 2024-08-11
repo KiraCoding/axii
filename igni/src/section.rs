@@ -26,8 +26,3 @@ impl Section {
     }
 }
 
-#[derive(Debug)]
-pub enum SectionKind {
-    Text,
-    Custom(String),
-}

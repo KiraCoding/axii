@@ -1,10 +1,10 @@
 use std::sync::LazyLock;
-use transcend::ptr::resolve_fn;
+use igni::program::program;
 use windows::core::PCWSTR;
 
 static NAMES_POOL_TABLE: LazyLock<NamesPoolTable> = LazyLock::new(|| NamesPoolTable {
-    get: unsafe { resolve_fn(0x2843A0) },
-    add_entry: unsafe { resolve_fn(0x145A3A0) },
+    get: unsafe { program().rva(0x2843A0) },
+    add_entry: unsafe { program().rva(0x145A3A0) },
 });
 
 #[derive(Debug)]
@@ -13,8 +13,9 @@ struct NamesPoolTable {
     add_entry: unsafe extern "thiscall" fn(*mut NamesPool, PCWSTR) -> *mut u32,
 }
 
+#[repr(C)]
 #[derive(Debug, Clone, Copy)]
-pub struct NamesPool {}
+pub struct NamesPool;
 
 impl NamesPool {
     pub fn get() -> Self {
