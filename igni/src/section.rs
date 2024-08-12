@@ -5,13 +5,13 @@ use rayon::{iter::IndexedParallelIterator, slice::ParallelSlice};
 #[derive(Debug)]
 pub struct Section {
     pub(crate) name: String,
-    pub(crate) base: *const (),
+    pub(crate) base: *const u8,
     pub(crate) len: usize,
 }
 
 impl Section {
     #[inline]
-    pub fn base(&self) -> *const () {
+    pub fn base(&self) -> *const u8 {
         self.base
     }
 
@@ -33,7 +33,7 @@ impl Section {
 
     #[inline]
     pub unsafe fn rva<T>(&self, offset: usize) -> T {
-        unsafe { transmute_copy(&(self.base as *const u8).add(offset)) }
+        unsafe { transmute_copy(&self.base.add(offset)) }
     }
 }
 

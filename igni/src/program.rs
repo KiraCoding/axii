@@ -23,7 +23,7 @@ pub fn program() -> &'static Program {
 
 #[derive(Debug)]
 pub struct Program {
-    base: *const (),
+    base: *const u8,
     len: usize,
     sections: Vec<Section>,
 }
@@ -37,7 +37,7 @@ impl Program {
 
     /// Returns a raw pointer to the programs base.
     #[inline]
-    pub fn base(&self) -> *const () {
+    pub fn base(&self) -> *const u8 {
         self.base
     }
 
@@ -82,7 +82,7 @@ impl Program {
     }
 
     fn init() -> Self {
-        let base = unsafe { GetModuleHandleW(PCWSTR::null()).unwrap_unchecked().0 as *const () };
+        let base = unsafe { GetModuleHandleW(PCWSTR::null()).unwrap_unchecked().0 as *const u8 };
 
         let len = {
             let process = unsafe { GetCurrentProcess() };
@@ -120,7 +120,7 @@ impl Program {
                     Section {
                         name,
                         base: unsafe {
-                            (base as *const u8).add(section.VirtualAddress as usize) as *const ()
+                            base.add(section.VirtualAddress as usize) as *const u8
                         },
                         len: unsafe { section.Misc.VirtualSize as usize },
                     }

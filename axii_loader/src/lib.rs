@@ -1,5 +1,9 @@
+#![feature(c_size_t)]
+
 #[cfg(not(all(target_arch = "x86_64", target_os = "windows", target_env = "msvc")))]
 compile_error!("This crate can only be compiled for the x86_64-pc-windows-msvc target");
+
+pub mod offset;
 
 use std::env::current_dir;
 use std::fs::read_dir;
@@ -7,6 +11,8 @@ use std::io::{stderr, stdout};
 use std::os::windows::ffi::OsStrExt;
 use std::os::windows::io::AsRawHandle;
 use std::path::PathBuf;
+use std::slice::from_raw_parts;
+use offset::{resolve, offset};
 use tracing::{error, info};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::fmt::format::FmtSpan;
@@ -29,6 +35,11 @@ unsafe extern "system" fn loader() {
 
     init_console();
     init_tracing();
+
+    dbg!(offset("CClass::GetType"));
+    let addr = dbg!(resolve("CClass::GetType"));
+
+    println!("{:x?}", from_raw_parts(addr, 30));
 
     let paths = read_plugins_dir();
 
