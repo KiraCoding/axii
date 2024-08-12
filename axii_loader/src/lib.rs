@@ -11,8 +11,6 @@ use std::io::{stderr, stdout};
 use std::os::windows::ffi::OsStrExt;
 use std::os::windows::io::AsRawHandle;
 use std::path::PathBuf;
-use std::slice::from_raw_parts;
-use offset::{resolve, offset};
 use tracing::{error, info};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::fmt::format::FmtSpan;
@@ -35,11 +33,6 @@ unsafe extern "system" fn loader() {
 
     init_console();
     init_tracing();
-
-    dbg!(offset("CClass::GetType"));
-    let addr = dbg!(resolve("CClass::GetType"));
-
-    println!("{:x?}", from_raw_parts(addr, 30));
 
     let paths = read_plugins_dir();
 
