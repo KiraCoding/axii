@@ -1,4 +1,4 @@
-use core::ffi::{c_char, c_size_t, c_void, CStr};
+use core::ffi::{c_char, c_void, CStr};
 use core::ptr::null;
 use igni::program::program;
 use serde::Deserialize;
