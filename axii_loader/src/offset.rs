@@ -7,20 +7,6 @@ use std::{collections::HashMap, env::current_dir, fs::read_to_string, sync::Lazy
 
 static OFFSETS: LazyLock<Offsets> = LazyLock::new(Offsets::init);
 
-#[export_name = "offset"]
-pub unsafe extern "C-unwind" fn offset_cpp(symbol: *const c_char) -> c_size_t {
-    if symbol.is_null() {
-        return 0;
-    }
-
-    let c_str = unsafe { CStr::from_ptr(symbol) };
-
-    match c_str.to_str() {
-        Ok(str) => offset(str),
-        Err(_) => 0,
-    }
-}
-
 #[export_name = "resolve"]
 pub unsafe extern "C-unwind" fn resolve_cpp(symbol: *const c_char) -> *const c_void {
     if symbol.is_null() {
@@ -36,12 +22,8 @@ pub unsafe extern "C-unwind" fn resolve_cpp(symbol: *const c_char) -> *const c_v
 }
 
 pub(crate) fn resolve(symbol: &str) -> *const u8 {
-    let offset = offset(symbol);
+    let offset = OFFSETS.inner.get(symbol).copied().unwrap();
     unsafe { program().text().rva(offset) }
-}
-
-pub(crate) fn offset(symbol: &str) -> usize {
-    OFFSETS.inner.get(symbol).copied().unwrap()
 }
 
 struct Offsets {
