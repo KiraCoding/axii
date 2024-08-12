@@ -8,7 +8,6 @@
 | [axii_proxy]  |             |
 | [axii_runner] |             |
 | [igni]        |             |
-| [igni_macro]  |             |
 
 ## Compatiblity
 WHSE will support the latest version of `The Witcher 3: Wild Hunt` DirectX12 available on Steam.
@@ -30,4 +29,3 @@ Todo: Decide on licensing
 [axii_proxy]:  ./axii_proxy/
 [axii_runner]: ./axii_runner/
 [igni]:        ./igni/
-[igni_macro]:  ./igni_macro/
