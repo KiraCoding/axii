@@ -1,20 +1,19 @@
 #[cfg(not(all(target_arch = "x86_64", target_os = "windows", target_env = "msvc")))]
 compile_error!("This crate can only be compiled for the x86_64-pc-windows-msvc target");
 
-use igni::{hook::hook, program::program};
+use aard::{function::Function, names_pool::NamesPool, rtti_system::RTTISystem};
+use core::ffi::c_void;
+
+extern "C" fn abcd(p0: *const c_void, script_stack_frame: *const c_void, ret: u64) {}
 
 #[no_mangle]
-#[allow(non_snake_case)]
 pub unsafe extern "system" fn plugin() {
-    let program = program();
-    println!("Base: {:p}", program.base());
-    println!("Text: {:p}", program.text().base());
+    let name_hash = NamesPool::add_entry("abcd");
+    dbg!(name_hash);
+    let function = Function::new(name_hash, abcd);
+    dbg!(&function);
+    println!("Func done alloc");
 
-    let sig = &[
-        0x48, 0x89, 0x5c, 0x24, 0x10, 0x57, 0x48, 0x83, 0xEC, 0x20, 0xBA, 0x10, 0x00, 0x00, 0x00,
-    ];
-
-    let addr = dbg!(program.text().scan::<unsafe extern "C" fn()>(sig).unwrap());
-
-    hook(addr, || println!("Hook worked!"));
+    RTTISystem::register_global_function(function);
+    println!("Registered")
 }

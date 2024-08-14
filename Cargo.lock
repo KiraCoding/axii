@@ -3,6 +3,14 @@
 version = 3
 
 [[package]]
+name = "aard"
+version = "0.1.0"
+dependencies = [
+ "igni",
+ "windows 0.58.0",
+]
+
+[[package]]
 name = "aho-corasick"
 version = "1.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -442,6 +450,7 @@ checksum = "7a66a03ae7c801facd77a29370b4faec201768915ac14a721ba36f20bc9c209b"
 name = "roach"
 version = "0.1.0"
 dependencies = [
+ "aard",
  "igni",
  "windows 0.58.0",
 ]
