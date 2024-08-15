@@ -6,7 +6,7 @@ use crate::resolve;
 static FUNCTION_TABLE: LazyLock<FunctionTable> = LazyLock::new(FunctionTable::init);
 
 struct FunctionTable {
-    new: unsafe extern "C" fn(*mut Function, *const u32, *const c_void) -> *mut Function,
+    new: unsafe extern "C" fn(*mut Function, u32, *const c_void) -> *mut Function,
 }
 
 impl FunctionTable {
@@ -24,7 +24,7 @@ pub struct Function {
 }
 
 impl Function {
-    pub fn new(name_hash: *const u32, function: extern "C" fn(*const c_void, *const c_void, u64)) -> Self {
+    pub fn new(name_hash: u32, function: extern "C" fn(*const c_void, *const c_void, u64)) -> Self {
         let layout = Layout::from_size_align(0xC0, 0x10).unwrap();
         let memory = unsafe { alloc(layout) };
 

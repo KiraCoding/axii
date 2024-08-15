@@ -76,10 +76,6 @@ fn init_plugin(module: HMODULE) {
     ];
 
     let addr = unsafe { GetProcAddress(module, s!("plugin")).unwrap() };
-
-    let factory: unsafe extern "C" fn() = unsafe { program().text().scan(pattern).unwrap() };
-    
-
     unsafe { addr() };
 }
 
