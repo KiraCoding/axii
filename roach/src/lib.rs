@@ -5,7 +5,7 @@ use aard::names_pool::NamesPool;
 
 #[no_mangle]
 pub unsafe extern "system" fn plugin() {
-    let name_hash = NamesPool::add_entry("abcd");
-    let found = NamesPool::find_text(name_hash);
-    println!("{}", found);
+    let name_hash = NamesPool::add_entry("EngineTimeToFloat");
+    let found = NamesPool::find_text_ansi(name_hash).unwrap();
+    println!("Name: {}", found);
 }

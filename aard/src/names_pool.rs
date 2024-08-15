@@ -1,11 +1,9 @@
-use core::ffi::c_char;
+use crate::resolve;
+use core::ffi::{c_char, CStr};
 use core::mem::ManuallyDrop;
 use core::slice::from_raw_parts;
-use std::ffi::CStr;
-use std::sync::LazyLock;
-
-use crate::resolve;
 use igni::program::program;
+use std::sync::LazyLock;
 
 static NAMES_POOL_TABLE: LazyLock<NamesPoolTable> = LazyLock::new(NamesPoolTable::init);
 
@@ -28,30 +26,26 @@ impl NamesPoolTable {
             get: dbg!(unsafe { program().text().scan(pattern).unwrap() }),
             add_entry: dbg!(resolve("CNamesPool::AddEntry")),
             find_text: dbg!(resolve("CNamesPool::FindText")),
+            find_text_ansi: dbg!(resolve("CNamesPool::FindTextAnsi")),
         }
     }
 }
 
-pub struct NamesPool {
-    this: *mut NamesPool,
-}
+pub struct NamesPool;
 
 impl NamesPool {
-    fn get() -> Self {
-        let this = unsafe { (NAMES_POOL_TABLE.get)() };
-        Self { this }
+    fn get() -> *mut Self {
+        unsafe { (NAMES_POOL_TABLE.get)() }
     }
 
     pub fn add_entry(name: &str) -> u32 {
         let name_wide: Vec<u16> = name.encode_utf16().chain(Some(0)).collect();
-        unsafe {
-            (NAMES_POOL_TABLE.add_entry)(Self::get().this, ManuallyDrop::new(name_wide).as_ptr())
-        }
+        unsafe { (NAMES_POOL_TABLE.add_entry)(Self::get(), ManuallyDrop::new(name_wide).as_ptr()) }
     }
 
     pub fn find_text(key: u32) -> Option<String> {
         unsafe {
-            let name_wide_ptr = (NAMES_POOL_TABLE.find_text)(Self::get().this, key);
+            let name_wide_ptr = (NAMES_POOL_TABLE.find_text)(Self::get(), key);
 
             if name_wide_ptr.is_null() {
                 return None;
@@ -64,15 +58,14 @@ impl NamesPool {
         }
     }
 
-    pub fn find_text_ansi(key: u32) -> Option<&str> {
-        let ansi_str_ptr = unsafe { (NAMES_POOL_TABLE.find_text_ansi)(Self::get().this, key) };
+    pub fn find_text_ansi(key: u32) -> Option<String> {
+        let ansi_str_ptr = unsafe { (NAMES_POOL_TABLE.find_text_ansi)(Self::get(), key) };
 
         if ansi_str_ptr.is_null() {
             return None;
         }
 
         let c_str = unsafe { CStr::from_ptr(ansi_str_ptr) };
-
-        Some(c_str.to_str().unwrap())
+        Some(String::from(c_str.to_str().unwrap()))
     }
 }
