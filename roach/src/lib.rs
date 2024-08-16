@@ -4,7 +4,7 @@ compile_error!("This crate can only be compiled for the x86_64-pc-windows-msvc t
 use axii_sdk::names_pool::NamesPool;
 use axii_sdk::{Function, RTTISystem};
 
-extern "C" fn test (a: u64, b: u64, c: u64) {
+extern "C" fn test(_p1: u64, _script_stack_frame: u64, _return: u64) {
     println!("Hello")
 }
 
