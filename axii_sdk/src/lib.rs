@@ -1,6 +1,6 @@
-pub mod function;
+mod function;
 pub mod names_pool;
-pub mod rtti_system;
+mod rtti_system;
 
 use core::ffi::{c_char, c_void};
 use core::mem::transmute;
@@ -13,6 +13,7 @@ use windows::core::{s, PCWSTR};
 use windows::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryW};
 
 pub use rtti_system::RTTISystem;
+pub use function::Function;
 
 type Resolve = fn(*const c_char) -> *const c_void;
 

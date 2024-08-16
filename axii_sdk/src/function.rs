@@ -1,7 +1,6 @@
+use igni::program::program;
 use crate::resolve;
-use core::cell::UnsafeCell;
 use core::ffi::c_void;
-use std::alloc::{alloc, Layout};
 use std::sync::LazyLock;
 
 static FUNCTION_TABLE: LazyLock<FunctionTable> = LazyLock::new(FunctionTable::init);
@@ -20,40 +19,22 @@ impl FunctionTable {
 
 #[derive(Debug)]
 pub struct Function {
-    layout: Layout,
     pub(crate) this: *mut Function,
 }
 
 impl Function {
-    pub fn new<F>(hash: u32, function: F) -> Self
-    where
-        F: FnMut(u64, u64, u64),
-    {
-        let layout = Layout::from_size_align(0xC0, 0x10).unwrap();
-        let memory = unsafe { alloc(layout) };
-
-        let closure = Box::into_raw(Box::new(function));
-
-        thread_local! {
-            static CTX: UnsafeCell<*mut c_void> = UnsafeCell::new(std::ptr::null_mut());
-        }
-
-        CTX.with(|ctx| unsafe {
-            *ctx.get() = closure as *mut c_void;
-        });
-
-        unsafe extern "C" fn trampoline<F>(a: u64, b: u64, c: u64)
-        where
-            F: FnMut(u64, u64, u64),
-        {
-            CTX.with(|ctx| {
-                (*(*ctx.get() as *mut F))(a, b, c);
-            });
-        }
-
-        let this =
-            unsafe { (FUNCTION_TABLE.new)(memory.cast(), hash, trampoline::<F> as *const c_void) };
-
-        Self { layout, this }
+    pub fn new(hash: u32, function: extern "C" fn(u64, u64, u64)) -> Self {
+        let memory = dbg!(alloc_func(0xC0, 0x10));
+        println!("Allocation for func done");
+        let this = unsafe { (FUNCTION_TABLE.new)(memory.cast(), hash, function as *const c_void) };
+        println!("ctor done");
+        Self { this }
     }
+}
+
+static ALLOC_FUNC: LazyLock<unsafe extern "C" fn(u32, u32) -> *mut c_void> =
+    LazyLock::new(|| unsafe { dbg!(program().text().scan(&[]).unwrap()) });
+
+fn alloc_func(size: u32, alignment: u32) -> *mut c_void {
+    unsafe { (ALLOC_FUNC)(size, alignment) }
 }
