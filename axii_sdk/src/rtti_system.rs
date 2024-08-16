@@ -28,19 +28,15 @@ impl RTTISystemTable {
     }
 }
 
-pub struct RTTISystem {
-    this: *mut RTTISystem,
-}
+pub struct RTTISystem;
 
 impl RTTISystem {
-    fn get() -> Self {
-        let this = unsafe { (RTTI_SYSTEM_TABLE.get)() };
-        println!("Get RTTISystem");
-        RTTISystem { this }
+    fn get() -> *mut Self {
+        unsafe { (RTTI_SYSTEM_TABLE.get)() }
     }
 
     pub fn register_global_function(function: Function) {
-        unsafe { (RTTI_SYSTEM_TABLE.register_global_function)(Self::get().this, function.this) }
+        unsafe { (RTTI_SYSTEM_TABLE.register_global_function)(Self::get(), function.this) }
     }
 }
 

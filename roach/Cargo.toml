@@ -9,4 +9,4 @@ crate-type = ["cdylib"]
 [dependencies]
 windows = { version = "0.58.0", features = ["Win32_System_LibraryLoader"] }
 igni = { path = "../igni" }
-aard = { path = "../aard" }
+axii_sdk = { path = "../axii_sdk" }

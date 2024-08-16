@@ -23,10 +23,10 @@ impl NamesPoolTable {
         ];
 
         Self {
-            get: dbg!(unsafe { program().text().scan(pattern).unwrap() }),
-            add_entry: dbg!(resolve("CNamesPool::AddEntry")),
-            find_text: dbg!(resolve("CNamesPool::FindText")),
-            find_text_ansi: dbg!(resolve("CNamesPool::FindTextAnsi")),
+            get: unsafe { program().text().scan(pattern).unwrap() },
+            add_entry: resolve("CNamesPool::AddEntry"),
+            find_text: resolve("CNamesPool::FindText"),
+            find_text_ansi: resolve("CNamesPool::FindTextAnsi"),
         }
     }
 }
