@@ -2,40 +2,58 @@ mod function;
 pub mod names_pool;
 mod rtti_system;
 
-use core::ffi::{c_char, c_void};
-use core::mem::transmute;
-use std::env::current_dir;
-use std::ffi::CString;
-use std::mem::transmute_copy;
-use std::os::windows::ffi::OsStrExt;
-use std::sync::LazyLock;
-use windows::core::{s, PCWSTR};
-use windows::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryW};
+use igni::program::program;
+use serde::Deserialize;
+use serde_json::from_str;
+use std::{collections::HashMap, env::current_dir, fs::read_to_string, sync::LazyLock};
 
-pub use rtti_system::RTTISystem;
 pub use function::Function;
+pub use rtti_system::RTTISystem;
 
-type Resolve = fn(*const c_char) -> *const c_void;
-
-static RESOLVE: LazyLock<Resolve> = LazyLock::new(|| {
-    let path: Vec<u16> = current_dir()
-        .unwrap()
-        .join("..\\whse\\axii.dll")
-        .canonicalize()
-        .unwrap()
-        .as_os_str()
-        .encode_wide()
-        .chain(Some(0))
-        .collect();
-
-    let module = unsafe { LoadLibraryW(PCWSTR(path.as_ptr())).unwrap() };
-    let addr = unsafe { GetProcAddress(module, s!("resolve")).unwrap() };
-
-    unsafe { transmute::<_, Resolve>(addr) }
-});
+static OFFSETS: LazyLock<Offsets> = LazyLock::new(Offsets::init);
 
 pub(crate) fn resolve<T>(symbol: &str) -> T {
-    let c_str = CString::new(symbol).unwrap();
+    let offset = OFFSETS.inner.get(symbol).copied().unwrap();
+    unsafe { program().text().rva(offset) }
+}
 
-    unsafe { transmute_copy(&RESOLVE(c_str.as_ptr())) }
+struct Offsets {
+    inner: HashMap<String, usize>,
+}
+
+impl Offsets {
+    fn init() -> Self {
+        dbg!(current_dir().unwrap());
+
+        let path = current_dir()
+            .unwrap()
+            .join("x64_dx12")
+            .join("witcher3map.json");
+        let json_map = read_to_string(path).unwrap();
+        let parsed_json: Map = from_str(&json_map).unwrap();
+
+        let inner = parsed_json
+            .addresses
+            .into_iter()
+            .map(|address| {
+                let offset_str = address.offset.split(':').last().unwrap();
+                let offset = usize::from_str_radix(offset_str, 16).unwrap();
+                (address.symbol, offset)
+            })
+            .collect();
+
+        Self { inner }
+    }
+}
+
+#[derive(Deserialize)]
+struct Map {
+    #[serde(rename = "Addresses")]
+    addresses: Vec<Address>,
+}
+
+#[derive(Deserialize)]
+struct Address {
+    symbol: String,
+    offset: String,
 }
