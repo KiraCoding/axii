@@ -38,12 +38,9 @@ impl Function {
         function: extern "C-unwind" fn(*mut c_void, *mut c_void, *mut c_void),
     ) -> Self {
         let memory = alloc_func(0xC0, 0x10);
-        println!("Allocation for func done");
         memset(memory, 0, 0xC0);
-        println!("memset done");
         let this =
             unsafe { (FUNCTION_TABLE.new)(memory as *mut Function, hash as c_int, function as *mut c_void) };
-        println!("ctor done");
         Self { this }
     }
 }
