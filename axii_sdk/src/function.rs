@@ -28,9 +28,7 @@ impl FunctionTable {
 
 #[repr(C)]
 #[derive(Debug)]
-pub struct Function {
-    pub(crate) this: *mut Function,
-}
+pub struct Function;
 
 impl Function {
     pub fn new(
@@ -39,9 +37,14 @@ impl Function {
     ) -> Self {
         let memory = alloc_func(0xC0, 0x10);
         memset(memory, 0, 0xC0);
-        let this =
-            unsafe { (FUNCTION_TABLE.new)(memory as *mut Function, hash as c_int, function as *mut c_void) };
-        Self { this }
+        unsafe {
+            (FUNCTION_TABLE.new)(
+                memory as *mut Function,
+                hash as c_int,
+                function as *mut c_void,
+            )
+        };
+        Self
     }
 }
 

@@ -35,8 +35,8 @@ impl RTTISystem {
         unsafe { (RTTI_SYSTEM_TABLE.get)() }
     }
 
-    pub fn register_global_function(function: Function) {
-        unsafe { (RTTI_SYSTEM_TABLE.register_global_function)(Self::get(), function.this) }
-    }
+    // pub fn register_global_function(function: Function) {
+    //     unsafe { (RTTI_SYSTEM_TABLE.register_global_function)(Self::get(), function.this) }
+    // }
 }
 
