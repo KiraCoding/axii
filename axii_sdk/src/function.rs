@@ -28,7 +28,7 @@ impl FunctionTable {
 
 #[repr(C)]
 #[derive(Debug)]
-pub struct Function;
+pub struct Function([u8; 0xC0]);
 
 impl Function {
     pub fn new(
@@ -44,7 +44,7 @@ impl Function {
                 function as *mut c_void,
             )
         };
-        Self
+        Self([0; 192])
     }
 }
 
