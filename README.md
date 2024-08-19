@@ -19,6 +19,10 @@ WHSE will support the latest version of `The Witcher 3: Wild Hunt` DX11 & DX12 a
 2. Copy `axii.dll` into `bin/whse`.
 3. Place all your plugins into `bin/whse/plugins`.
 
+## Building
+> [!IMPORTANT]\  
+> You have to have the nightly toolchain installed.
+
 ## License
 > [!NOTE]\
 > This project is independent and not affiliated with `CD Project RED` in any way.
