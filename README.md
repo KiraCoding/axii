@@ -20,7 +20,7 @@ WHSE will support the latest version of `The Witcher 3: Wild Hunt` DX11 & DX12 a
 3. Place all your plugins into `bin/whse/plugins`.
 
 ## Building
-> [!IMPORTANT]\  
+> [!IMPORTANT]\
 > You have to have the nightly toolchain installed.
 
 ## License
