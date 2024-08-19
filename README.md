@@ -12,7 +12,7 @@
 | [roach]       | Plugin for dev testing      |
 
 ## Compatiblity
-WHSE will support the latest version of `The Witcher 3: Wild Hunt` DirectX12 available on Steam.
+WHSE will support the latest version of `The Witcher 3: Wild Hunt` DX11 & DX12 available on Steam.
 
 ## Installation
 1. Copy `dinput8.dll` into `bin/x64_dx12`.
