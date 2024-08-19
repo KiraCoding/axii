@@ -1,4 +1,4 @@
-# Wild Hunt Script Extender (WHSE) [Codename: AXII]
+# Wild Hunt Script Extender (WHSE) [Codename Axii]
 > [!IMPORTANT]\
 > WHSE is currently under development, and official releases have not been shipped yet.
 
