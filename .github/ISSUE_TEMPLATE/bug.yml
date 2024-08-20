@@ -10,6 +10,8 @@ body:
     id: description
     attributes:
       label: Describe your issue
+      value: |
+        Description
     validations:
       required: true
   - type: textarea
