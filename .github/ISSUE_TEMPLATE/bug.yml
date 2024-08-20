@@ -1,0 +1,29 @@
+name: Bug report
+description: Create a bug report
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please fill out the sections below to help us reproduce and fix the bug you are encountering.
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe your issue
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributs:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: checkboxes
+    id: terms
+    attributes:
+      options:
+        - label: I want to work on this isse.
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking your time and reporting this issue.
