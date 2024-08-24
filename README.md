@@ -14,7 +14,7 @@
 ## Compatiblity
 WHSE will support the latest version of `The Witcher 3: Wild Hunt` DX11 & DX12 available on Steam.
 
-## Installation
+## Installing
 1. Copy `dinput8.dll` into `bin/x64_dx12`.
 2. Copy `axii.dll` into `bin/whse`.
 3. Place all your plugins into `bin/whse/plugins`.
